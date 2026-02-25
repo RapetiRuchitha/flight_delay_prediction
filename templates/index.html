@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flight Delay Prediction System</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --secondary: #8b5cf6;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --gray: #64748b;
+      --border: #e2e8f0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+    }
+
+    .form-wrapper {
+      padding: 2.5rem;
+    }
+
+    .section {
+      margin-bottom: 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+      color: white;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    input,
+    select {
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    input:hover,
+    select:hover {
+      border-color: var(--gray);
+    }
+
+    .btn-container {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    button {
+      background: linear-gradient(135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%);
+      color: white;
+      border: none;
+      padding: 1rem 3rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+      min-width: 250px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .result-box {
+      margin-top: 2rem;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+    }
+
+    .result-success {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border: 2px solid var(--success);
+      color: #065f46;
+    }
+
+    .result-delayed {
+      background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+      border: 2px solid var(--danger);
+      color: #7f1d1d;
+    }
+
+    .result-error {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+      border: 2px solid var(--danger);
+      color: #991b1b;
+    }
+
+    .result-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .result-label {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+      font-weight: 700;
+    }
+
+    .result-details {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      body {
+        padding: 1rem;
+      }
+    }
+
+    .tooltip {
+      position: relative;
+      display: inline-block;
+      margin-left: 0.25rem;
+      color: var(--gray);
+      cursor: help;
+      font-size: 0.9rem;
+    }
+
+    select option {
+      padding: 0.5rem;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>✈️ Flight Delay Prediction System</h1>
+      <p>
+        Advanced ML-powered flight delay prediction with delay duration
+        estimation
+      </p>
+    </div>
+
+    <div class="form-wrapper">
+      <form method="POST">
+        <!-- Flight Information Section -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-icon">✈</div>
+            <h2 class="section-title">Flight Information</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="Reporting_Airline">Airline</label>
+              <select id="Reporting_Airline" name="Reporting_Airline" required>
+                <option value="">Select Airline</option>
+                {% for key, name in airlines.items() %}
+                <option value="{{ key }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="Origin">Origin Airport</label>
+              <select id="Origin" name="Origin" required onchange="updateDistance()">
+                <option value="">Select Origin</option>
+                {% for key, name in origins.items() %}
+                <option value="{{ key }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="Dest">Destination Airport</label>
+              <select id="Dest" name="Dest" required onchange="updateDistance()">
+                <option value="">Select Destination</option>
+                {% for key, name in dests.items() %}
+                <option value="{{ key }}">{{ name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="Distance">Distance (miles)</label>
+              <input type="number" id="Distance" name="Distance" min="0" step="1" placeholder="Distance will auto-fill"
+                required readonly style="background-color: #f1f5f9; cursor: not-allowed;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Date & Time Section -->
+        <div class="section">
+          <div class="section-header">
+            <div class="section-icon">📅</div>
+            <h2 class="section-title">Flight Schedule</h2>
+          </div>
+          <div class="form-grid">
+
+            <!-- User Friendly Date Picker -->
+            <div class="form-group">
+              <label for="FlightDate">Flight Date</label>
+              <input type="date" id="FlightDate" name="FlightDate" required onchange="updateDateFields()" />
+            </div>
+
+            <!-- User Friendly Time Picker -->
+            <div class="form-group">
+              <label for="FlightTime">Departure Time</label>
+              <input type="time" id="FlightTime" name="FlightTime" required onchange="updateTimeFields()" />
+            </div>
+
+            <!-- Hidden inputs to maintain compatibility with backend -->
+            <input type="hidden" id="Year" name="Year" value="2024">
+            <input type="hidden" id="Quarter" name="Quarter" value="1">
+            <input type="hidden" id="Month" name="Month" value="1">
+            <input type="hidden" id="DayofMonth" name="DayofMonth" value="1">
+            <input type="hidden" id="DayOfWeek" name="DayOfWeek" value="1">
+            <input type="hidden" id="CRSDepTime" name="CRSDepTime" value="1200">
+
+          </div>
+        </div>
+
+        <!-- Data for JavaScript -->
+        <script id="distances-data" type="application/json">
+          {{ distances | tojson | safe if distances else '{}' }}
+        </script>
+
+        <script>
+          // Initialize event listeners
+          document.addEventListener('DOMContentLoaded', function () {
+            // Set min date to today to prevent past dates
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            document.getElementById('FlightDate').setAttribute('min', todayStr);
+          });
+
+          // Distance Matrix
+          const distanceMap = JSON.parse(document.getElementById('distances-data').textContent);
+
+          function updateDistance() {
+            const origin = document.getElementById('Origin').value;
+            const dest = document.getElementById('Dest').value;
+            const distInput = document.getElementById('Distance');
+
+            if (origin && dest) {
+              if (origin === dest) {
+                distInput.value = "";
+                distInput.placeholder = "Same Origin & Destination!";
+                alert("Origin and Destination cannot be the same airport.");
+                document.getElementById('Dest').value = ""; // Clear destination
+                return;
+              }
+
+              const dist = distanceMap[origin] ? distanceMap[origin][dest] : null;
+              if (dist !== null) {
+                distInput.value = dist;
+              } else {
+                distInput.value = "";
+                distInput.placeholder = "Distance unknown";
+              }
+            } else {
+              distInput.value = "";
+              distInput.placeholder = "Select airports first";
+            }
+          }
+
+          function updateDateFields() {
+            const dateInput = document.getElementById('FlightDate');
+            const dateVal = dateInput.value;
+            if (!dateVal) return;
+
+            // Enforce min date (today)
+            const minDate = dateInput.getAttribute('min');
+            if (minDate && dateVal < minDate) {
+              alert("Please select a date from today onwards.");
+              dateInput.value = minDate;
+              // Recursive call to update derived fields with the corrected date
+              return updateDateFields();
+            }
+
+            // Treat date as local time by appending time component or using getFullYear/etc methods carefully
+            // new Date("YYYY-MM-DD") returns UTC. 
+            // We want to work in local components.
+            // Best way: split the string directly.
+            const parts = dateVal.split('-');
+            const yearVal = parseInt(parts[0]);
+            const monthVal = parseInt(parts[1]);
+            const dayVal = parseInt(parts[2]);
+
+            // Create local date object for day-of-week calculation
+            // Note: Month is 0-indexed in Date constructor
+            const dateObj = new Date(yearVal, monthVal - 1, dayVal);
+
+            // Year
+            document.getElementById('Year').value = yearVal;
+
+            // Month (0-indexed in JS, need 1-indexed)
+            document.getElementById('Month').value = monthVal;
+
+            // Day of Month
+            document.getElementById('DayofMonth').value = dayVal;
+
+            // Day of Week (0 is Sunday in JS, we typically use 1=Monday...7=Sunday or similar)
+            // Let's assume backend expects 1=Mon, ..., 7=Sun
+            let dayOfWeek = dateObj.getDay();
+            if (dayOfWeek === 0) dayOfWeek = 7; // Convert Sun (0) to 7
+            document.getElementById('DayOfWeek').value = dayOfWeek;
+
+            // Quarter
+            const quarter = Math.ceil(monthVal / 3);
+            document.getElementById('Quarter').value = quarter;
+          }
+
+          function updateTimeFields() {
+            const timeVal = document.getElementById('FlightTime').value;
+            if (!timeVal) return;
+
+            // Format is HH:MM
+            // Backend likely expects HHMM (integer) e.g. 1430
+            const parts = timeVal.split(':');
+            const hhmm = parts[0] + parts[1];
+            document.getElementById('CRSDepTime').value = parseInt(hhmm);
+          }
+        </script>
+
+        <div class="btn-container">
+          <button type="submit">🔮 Predict Flight Delay</button>
+        </div>
+      </form>
+
+      {% if result %}
+      <div
+        class="result-box {% if 'On-Time' in result %}result-success{% elif 'Delayed' in result %}result-delayed{% elif 'Error' in result %}result-error{% endif %}">
+        <div class="result-icon">
+          {% if 'On-Time' in result %}✅ {% elif 'Delayed' in result %}⚠️ {%
+          elif 'Error' in result %}❌{% endif %}
+        </div>
+        <div class="result-label">{{ result }}</div>
+        {% if 'Delayed' in result %}
+        {% if prob %}
+        <div class="result-details">Delay Probability: <strong>{{ prob }}%</strong></div>
+        {% endif %}
+        {% if delay_mins %}
+        <div class="result-details">Estimated Wait: <strong>{{ delay_mins }} minutes</strong></div>
+        {% endif %}
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+
+</html>
