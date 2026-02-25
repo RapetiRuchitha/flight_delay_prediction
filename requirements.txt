@@ -9,5 +9,6 @@ scikit-learn
 matplotlib
 plotly
 seaborn 
+joblib
 xgboost
-imbalanced-learn 
+imbalanced-learn
